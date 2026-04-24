@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weru Fish Shop</title>
+    <link rel="stylesheet" href="weru_fish.css">
+</head>
+<style>
+   body {
+    background: #eaf6fb;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+.container {
+    max-width: 500px;
+    margin: 40px auto;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    padding: 30px 40px;
+}
+h1 {
+    text-align: center;
+    color: #2a4d69;
+    margin-bottom: 30px;
+}
+.section {
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+.section:last-child {
+    border-bottom: none;
+}
+h2 {
+    color: #4b86b4;
+    margin-bottom: 10px;
+}
+select, input[type="number"] {
+    padding: 7px;
+    margin: 5px 3px 10px 0;
+    border: 1px solid #bfc9d1;
+    border-radius: 4px;
+    font-size: 1em;
+}
+button {
+    padding: 7px 18px;
+    background: #63ace5;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+button:hover {
+    background: #2a4d69;
+}
+#invoice, #stock, #updateMsg {
+    margin-top: 10px;
+    background: #f4f8fb;
+    border-radius: 6px;
+    padding: 10px;
+    color: #333;
+    font-size: 1em;
+}
+#invoice {
+    border-left: 4px solid #63ace5;
+}
+#updateMsg {
+    border-left: 4px solid #4b86b4;
+}
+
+</style>
+<body>
+    <div class="container">
+        <h1>🐟 Weru Fish Shop 🐟</h1>
+        <div class="section">
+            <h2>Buy Fish</h2>
+            <select id="fishType">
+                <option value="Tilapia">Tilapia</option>
+                <option value="Nile Perch">Nile Perch</option>
+            </select>
+            <select id="fishSize">
+                <option value="Large">Large</option>
+                <option value="Normal">Normal</option>
+                <option value="Small">Small</option>
+            </select>
+            <input type="number" id="quantity" min="1" placeholder="Quantity">
+            <button onclick="buyFish()">Buy</button>
+            <button onclick="printInvoice()" id="printBtn" style="display:none;">Print Invoice</button>
+            <button onclick="printInvoice()" id="printBtn" style="display:none;">Print Invoice</button>
+            <div id="invoice"></div>
+        </div>
+        <div class="section">
+            <h2>Check Stock</h2>
+            <button onclick="showStock()">Show Stock</button>
+            <div id="stock"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Update Stock</h2>
+            <select id="updateFishType">
+                <option value="Tilapia">Tilapia</option>
+                <option value="Nile Perch">Nile Perch</option>
+            </select>
+            <select id="updateFishSize">
+                <option value="Large">Large</option>
+                <option value="Normal">Normal</option>
+                <option value="Small">Small</option>
+            </select>
+            <input type="number" id="updateQuantity" min="1" placeholder="Add Quantity">
+            <button onclick="updateStock()">Update</button>
+            <div id="updateMsg"></div>
+        </div>
+        <div class="section">
+            <h2>About</h2>
+            <p>Welcome to Weru Fish Shop! We offer a variety of fresh fish including Tilapia and 
+                Nile Perch in different sizes. Use this app to buy fish, check stock, and update inventory.</p>
+    </div>
+    <script src="weru_fish.js"></script>
+</body>
+<script>
+   const stock = {
+    "Tilapia": { "Large": 50, "Normal": 100, "Small": 150 },
+    "Nile Perch": { "Large": 30, "Normal": 60, "Small": 400 }
+};
+const prices = {
+    "Tilapia": { "Large": 250, "Normal": 150, "Small": 100 },
+    "Nile Perch": { "Large": 350, "Normal": 300, "Small": 250 }
+};
+
+function buyFish() {
+    const fishType = document.getElementById('fishType').value;
+    const fishSize = document.getElementById('fishSize').value;
+    const quantity = parseInt(document.getElementById('quantity').value, 10);
+    const invoiceDiv = document.getElementById('invoice');
+    invoiceDiv.innerHTML = '';
+    if (!quantity || quantity < 1) {
+        invoiceDiv.innerHTML = '<span style="color:#c00;">Please enter a valid quantity.</span>';
+        return;
+    }
+    if (stock[fishType][fishSize] >= quantity) {
+        const price = prices[fishType][fishSize];
+        const total = price * quantity;
+        stock[fishType][fishSize] -= quantity;
+        invoiceDiv.innerHTML = `
+            <strong>Invoice</strong><br>
+            Fish Type: <b>${fishType}</b><br>
+            Fish Size: <b>${fishSize}</b><br>
+            Quantity: <b>${quantity}</b><br>
+            Price per fish: <b>KES ${price}</b><br>
+            <span style="color:#2a4d69;">Total: <b>KES ${total}</b></span>
+        `;
+    } else {
+        invoiceDiv.innerHTML = `<span style="color:#c00;">Sorry, not enough stock for ${quantity} ${fishSize} ${fishType}.</span>`;
+    }
+    document.getElementById('printBtn').style.display = 'inline-block';
+}
+
+function showStock() {
+    const stockDiv = document.getElementById('stock');
+    let html = '<table style="width:100%;border-collapse:collapse;"><tr><th>Type</th><th>Large</th><th>Normal</th><th>Small</th></tr>';
+    for (let type in stock) {
+        html += `<tr>
+            <td><b>${type}</b></td>
+            <td>${stock[type]["Large"]}</td>
+            <td>${stock[type]["Normal"]}</td>
+            <td>${stock[type]["Small"]}</td>
+        </tr>`;
+    }
+    html += '</table>';
+    stockDiv.innerHTML = html;
+}
+
+function updateStock() {
+    const fishType = document.getElementById('updateFishType').value;
+    const fishSize = document.getElementById('updateFishSize').value;
+    const quantity = parseInt(document.getElementById('updateQuantity').value, 10);
+    const msgDiv = document.getElementById('updateMsg');
+    msgDiv.innerHTML = '';
+    if (!quantity || quantity < 1) {
+        msgDiv.innerHTML = '<span style="color:#c00;">Please enter a valid quantity to add.</span>';
+        return;
+    }
+    stock[fishType][fishSize] += quantity;
+    msgDiv.innerHTML = `<span style="color:#2a4d69;">Stock updated! Now ${fishType} (${fishSize}): <b>${stock[fishType][fishSize]}</b></span>`;
+}
+</script>
+<footer>
+    <p><marquee>&copy; 2026 Developed and managed by <span style="color:green;"><strong>Austine Stevens</strong></span></marquee></p>
+</footer>
+</html>
